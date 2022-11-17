@@ -4,48 +4,126 @@ info:
   version: '0.1'
 
 paths:
-  /users/{user}:
+  /login/salt:
     get:
-      summary: Get user
-      operationId: getUser
+      summary: Get salt for user
+      description: Get salt for user
+      operationId: getSalt
       parameters:
-        - name: user
-          in: path
+        - name: username
+          in: query
+          description: Username
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: User
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /login:
+    post:
+      summary: Login
+      description: Login
+      operationId: login
+      requestBody:
+        description: Login request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{userId}:
+    get:
+      summary: Get user info
+      description: Get user info
+      operationId: getUserInfo
+      parameters:
+        - name: userId
+          in: path
+          description: User ID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
         '404':
-          description: User not found
+          description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-  /users/{user}/albums:
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{userId}/albums:
     get:
       summary: Get user albums
+      description: Get user albums
       operationId: getUserAlbums
       parameters:
-        - name: user
+        - name: userId
           in: path
+          description: User ID
           required: true
           schema:
             type: string
-        - name: limit
-          in: query
-          required: false
-          schema:
-            type: integer
-            format: int32
       responses:
         '200':
-          description: User albums
+          description: OK
           content:
             application/json:
               schema:
@@ -53,12 +131,17 @@ paths:
                 items:
                   $ref: '#/components/schemas/Album'
         '404':
-          description: User not found
+          description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     User:
@@ -69,7 +152,7 @@ components:
         name:
           type: string
         email:
-          type: string
+          type: string       
     Error:
       type: object
       properties:
@@ -99,3 +182,26 @@ components:
           type: string
         url:
           type: string
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        hashedPassword:
+          type: string
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+
+
+
+

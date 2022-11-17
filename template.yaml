@@ -22,7 +22,6 @@ Resources:
             Path: /
             Method: GET
             
-  # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlesssimpletable
   UserTable:
     Type: AWS::Serverless::SimpleTable
     Properties:

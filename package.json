@@ -12,7 +12,8 @@
     },
     "scripts": {
         "test": "jest",
-        "build": "tsc"
+        "build": "tsc",
+        "openapi-interface": "openapi-typescript openapi.yaml --output src/types/openapi-schema.ts"
     },
     "jest": {
         "preset": "ts-jest",

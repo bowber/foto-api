@@ -1,4 +1,6 @@
 # foto-api
 
 ## Documentation
-https://bowber.github.io/foto-api/
+- [API documentation](https://bowber.github.io/foto-api/)
+- [Project Wiki](https://github.com/bowber/foto-api/wiki)
+

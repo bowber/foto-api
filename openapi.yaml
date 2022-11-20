@@ -1,14 +1,14 @@
-openapi: '3.0.2'
+openapi: "3.0.2"
 info:
   title: Foto API
-  version: '0.1'
+  version: "0.1"
 
 paths:
-  /login/salt:
+  /register:
     get:
-      summary: Get salt for user
-      description: Get salt for user
-      operationId: getSalt
+      summary: Get salt & id for user registration
+      description: Get salt for password hashing & id for user registration. This id & salt is only valid in 1 minutes
+      operationId: registerPrepare
       parameters:
         - name: username
           in: query
@@ -17,31 +17,102 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: OK
+        "200":
+          description: Salt
           content:
             application/json:
               schema:
-                type: string
+                $ref: "#/components/schemas/Salt"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Create a new user
+      description: Create a new user
+      operationId: register
+      requestBody:
+        description: User to create
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                credentialInfo:
+                  $ref: "#/components/schemas/User"
+                hashedPassword:
+                  type: string          
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         '400':
-          description: Bad Request
+          description: Bad request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: Internal Server Error
+        '409':
+          description: User already exists
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
   /login:
+    get:
+      summary: Get salt and pepper for login
+      description: Get salt and pepper for login
+      operationId: getSaltAndPepper
+      parameters:
+        - name: username
+          in: query
+          description: Username
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaltAndPepper"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       summary: Login
       description: Login
@@ -52,98 +123,168 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: "#/components/schemas/LoginRequest"
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
-        '400':
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
           description: Bad Request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-  /users/{userId}:
+                $ref: "#/components/schemas/Error"
+  /users/my:
     get:
       summary: Get user info
       description: Get user info
       operationId: getUserInfo
       parameters:
         - name: userId
-          in: path
-          description: User ID
+          in: header
+          description: UserID in Bearer JWT
           required: true
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '404':
-          description: Not Found
+                $ref: "#/components/schemas/User"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-  /users/{userId}/albums:
+                $ref: "#/components/schemas/Error"
+  /users/my/albums:
     get:
       summary: Get user albums
       description: Get user albums
       operationId: getUserAlbums
       parameters:
         - name: userId
-          in: path
-          description: User ID
+          in: header
+          description: UserID in Bearer JWT
           required: true
           schema:
             type: string
+        - name: limit
+          in: query
+          description: Limit of photos to return
+          required: false
+          schema:
+            type: integer
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Album'
-        '404':
-          description: Not Found
+                  $ref: "#/components/schemas/Album"
+        "403":
+          description: Forbidden
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal Server Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
+  /users/my/albums/{albumId}:
+    get:
+      summary: Get user album photos
+      description: Get user album photos
+      operationId: getUserAlbumPhotos
+      parameters:
+        - name: userId
+          in: header
+          description: UserID in Bearer JWT
+          required: true
+          schema:
+            type: string
+        - name: albumId
+          in: path
+          description: Album ID
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Limit of photos to return
+          required: false
+          schema:
+            type: integer
+            default: 5
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Photo"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
 components:
   schemas:
+    Salt:
+      type: string
+    Pepper:
+      type: string
+    SaltAndPepper:
+      type: object
+      properties:
+        salt: 
+          $ref: "#/components/schemas/Salt"
+        pepper:
+          $ref: "#/components/schemas/Pepper"
     User:
       type: object
       properties:
@@ -152,7 +293,7 @@ components:
         name:
           type: string
         email:
-          type: string       
+          type: string
     Error:
       type: object
       properties:
@@ -170,7 +311,7 @@ components:
         photos:
           type: array
           items:
-            $ref: '#/components/schemas/Photo'
+            $ref: "#/components/schemas/Photo"
     Photo:
       type: object
       properties:
@@ -199,9 +340,6 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
 security:
   - bearerAuth: []
-
-
-
-

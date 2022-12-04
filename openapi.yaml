@@ -87,14 +87,22 @@ paths:
           description: email
           required: true
           schema:
-            type: string
+            type: object
+            properties:
+              salt:
+                type: string
       responses:
         "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/SaltAndPepper"
+                type: object
+                properties:
+                  salt:
+                    $ref: "#/components/schemas/Salt"
+                  pepper:
+                    $ref: "#/components/schemas/Pepper"
         "400":
           description: Bad Request
           content:
@@ -278,13 +286,6 @@ components:
       type: string
     Pepper:
       type: string
-    SaltAndPepper:
-      type: object
-      properties:
-        salt: 
-          $ref: "#/components/schemas/Salt"
-        pepper:
-          $ref: "#/components/schemas/Pepper"
     User:
       type: object
       properties:
@@ -298,7 +299,7 @@ components:
     Album:
       type: object
       properties:
-        id:
+        albumID:
           type: string
         name:
           type: string
@@ -311,7 +312,7 @@ components:
     Photo:
       type: object
       properties:
-        id:
+        photoID:
           type: string
         name:
           type: string

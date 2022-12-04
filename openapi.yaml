@@ -10,9 +10,9 @@ paths:
       description: Get salt for password hashing. This salt is only valid in 1 minutes
       operationId: registerPrepare
       parameters:
-        - name: username
+        - name: email
           in: query
-          description: Username
+          description: email
           required: true
           schema:
             type: string
@@ -55,7 +55,7 @@ paths:
               properties:
                 credentialInfo:
                   $ref: "#/components/schemas/User"
-                hashedPassword:
+                saltedPassword:
                   type: string          
       responses:
         '201':
@@ -82,9 +82,9 @@ paths:
       description: Get salt and pepper for login
       operationId: getSaltAndPepper
       parameters:
-        - name: username
+        - name: email
           in: query
-          description: Username
+          description: email
           required: true
           schema:
             type: string
@@ -288,10 +288,6 @@ components:
     User:
       type: object
       properties:
-        id:
-          type: string
-        name:
-          type: string
         email:
           type: string
     Error:
@@ -326,9 +322,9 @@ components:
     LoginRequest:
       type: object
       properties:
-        username:
+        email:
           type: string
-        hashedPassword:
+        saltedPassword:
           type: string
     LoginResponse:
       type: object

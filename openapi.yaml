@@ -6,8 +6,8 @@ info:
 paths:
   /register:
     get:
-      summary: Get salt & id for user registration
-      description: Get salt for password hashing & id for user registration. This id & salt is only valid in 1 minutes
+      summary: Get salt for user registration
+      description: Get salt for password hashing. This salt is only valid in 1 minutes
       operationId: registerPrepare
       parameters:
         - name: username

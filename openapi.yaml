@@ -3,6 +3,11 @@ info:
   title: Foto API
   version: "0.1"
 
+servers:
+  - url: https://krnckqj529.execute-api.ap-southeast-1.amazonaws.com/Prod/
+    description: Testing server
+  - url: https://safeyb3sxk.execute-api.ap-southeast-1.amazonaws.com/Prod/
+    description: Production server
 paths:
   /register:
     get:

@@ -67,7 +67,7 @@ const getPepperItem = async (client: DynamoDBDocumentClient) => {
     const output = await client.send(new GetCommand({
         TableName: process.env.SHARED_TABLE,
         Key: {
-            id: PEPPER_KEY
+            sharedID: PEPPER_KEY
         },
         ProjectionExpression: 'pepper, expires'
     }));
@@ -84,9 +84,9 @@ const refreshPepperItem = async (client: DynamoDBDocumentClient) => {
     const result = await client.send(new UpdateCommand({
         TableName: process.env.SHARED_TABLE,
         Key: {
-            id: PEPPER_KEY
+            sharedID: PEPPER_KEY
         },
-        ConditionExpression: 'attribute_not_exists(#id) OR #expires < :now',
+        ConditionExpression: 'attribute_not_exists(sharedID) OR expires < :now',
         UpdateExpression: 'SET pepper = :pepper, expires = :expires',
         ExpressionAttributeValues: {
             ':pepper': newPepper,

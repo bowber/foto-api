@@ -7,13 +7,13 @@ const client = new DynamoDBClient({});
 const ddbDocClient = DynamoDBDocumentClient.from(client);
 
 export interface User {
-    id: string;
+    userID: string;
     email: string;
     saltedPassword: string;
     salt: string;
 }
 export interface TempUser {
-    id: string;
+    userID: string;
     email: string;
     salt: string;
 }
@@ -26,16 +26,16 @@ export const createUser = async (user: User) => {
     const command = new PutCommand({
         TableName: USER_TABLE,
         Item: user,
-        ConditionExpression: 'attribute_not_exists(id) OR attribute_not_exists(email)',
+        ConditionExpression: 'attribute_not_exists(userID) OR attribute_not_exists(email)',
     });
     return await ddbDocClient.send(command);
 }
 
-export const getUserById = async (id: string) => {
+export const getUserById = async (userID: string) => {
     const command = new GetCommand({
         TableName: USER_TABLE,
         Key: {
-            id
+            userID: userID
         }
     });
     const result = await ddbDocClient.send(command);
@@ -45,7 +45,7 @@ export const getUserById = async (id: string) => {
 export const getUserByEmail = async (email: string) => {
     const command = new ScanCommand({
         TableName: USER_TABLE,
-        IndexName: 'email-index',
+        IndexName: USER_ID_INDEX,
         FilterExpression: 'email = :email',
         ExpressionAttributeValues: {
             ':email': email
@@ -80,7 +80,7 @@ export const getTempUser = async (email: string) => {
 export const createTempUser = async (email: string) => {
     const salt = generateSalt();
     const user: TempUser = {
-        id: randomUUID(),
+        userID: randomUUID(),
         email: email,
         salt: salt,
     };

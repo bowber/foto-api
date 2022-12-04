@@ -7,8 +7,11 @@ Resources:
   UserTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      AttributeDefinitions:
+        - AttributeName: userID
+          AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: userID
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 2
@@ -26,6 +29,9 @@ Resources:
   TempUserTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      AttributeDefinitions:
+        - AttributeName: email
+          AttributeType: S
       KeySchema:
         - AttributeName: email
           KeyType: HASH
@@ -35,8 +41,11 @@ Resources:
   SharedTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      AttributeDefinitions:
+        - AttributeName: sharedID
+          AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: sharedID
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 2

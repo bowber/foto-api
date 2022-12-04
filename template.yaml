@@ -10,6 +10,8 @@ Resources:
       AttributeDefinitions:
         - AttributeName: userID
           AttributeType: S
+        - AttributeName: email
+          AttributeType: S
       KeySchema:
         - AttributeName: userID
           KeyType: HASH

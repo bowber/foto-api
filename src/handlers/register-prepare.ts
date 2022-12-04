@@ -3,7 +3,7 @@ import { APIGatewayProxyHandler } from 'aws-lambda';
 import { createTempUser } from 'src/utils/user';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
-    const { email } = JSON.parse(event.body);
+    const { email } = event.queryStringParameters;
     const newUser = await createTempUser(email);
     return {
         statusCode: 200,

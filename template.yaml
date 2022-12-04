@@ -3,6 +3,44 @@ AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
+          
+  UserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+      GlobalSecondaryIndexes:
+        - IndexName: email-index
+          KeySchema:
+            - AttributeName: email
+              KeyType: HASH
+          Projection:
+            ProjectionType: KEYS_ONLY
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
+  TempUserTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+        - AttributeName: email
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+  SharedTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
   getUserInfoFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -21,16 +59,32 @@ Resources:
           Properties:
             Path: /
             Method: GET
-            
-  UserTable:
-    Type: AWS::Serverless::SimpleTable
+    Metadata:
+      BuildMethod: esbuild
+
+  registerPrepareFunction:
+    Type: AWS::Serverless::Function
     Properties:
-      PrimaryKey:
-        Name: id
-        Type: String
-      ProvisionedThroughput:
-        ReadCapacityUnits: 2
-        WriteCapacityUnits: 2
+      Handler: src/handlers/register-prepare.handler
+      Runtime: nodejs16.x
+      Timeout: 10
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref SharedTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TempUserTable
+      Environment:
+        Variables:
+          SHARED_TABLE: !Ref SharedTable
+          TEMP_USER_TABLE: !Ref TempUserTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /register
+            Method: GET
+    Metadata:
+      BuildMethod: esbuild
 
 Outputs:
   WebEndpoint:

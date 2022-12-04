@@ -65,7 +65,7 @@ export const getTempUser = async (email: string) => {
         }
     });
     const result = await ddbDocClient.send(command);
-    return result.Item as User;
+    return result.Item as TempUser;
 }
 
 /**
@@ -84,12 +84,19 @@ export const createTempUser = async (email: string) => {
         email: email,
         salt: salt,
     };
+    try {
+        const command = new PutCommand({
+            TableName: TEMP_USER_TABLE,
+            Item: user,
+            ConditionExpression: 'attribute_not_exists(email)',
+        });
+        await ddbDocClient.send(command);
+        return user;
+    } catch (error) {
+        if (error.name === 'ConditionalCheckFailedException') {
+            return null;
+        }
+        throw error;
+    }
 
-    const command = new PutCommand({
-        TableName: TEMP_USER_TABLE,
-        Item: user,
-        ConditionExpression: 'attribute_not_exists(email)',
-    });
-    await ddbDocClient.send(command);
-    return user;
 }

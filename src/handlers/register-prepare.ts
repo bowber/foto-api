@@ -1,14 +1,22 @@
 // See openapi.yaml for the request and response schema
 import { APIGatewayProxyHandler } from 'aws-lambda';
-import { createTempUser } from 'src/utils/user';
+import { createTempUser, getTempUser } from '../utils/user';
 
 export const handler: APIGatewayProxyHandler = async (event) => {
     const { email } = event.queryStringParameters;
-    const newUser = await createTempUser(email);
+    const tempUser = await tryCreateTempUser(email);
     return {
         statusCode: 200,
         body: JSON.stringify({
-            salt: newUser.salt
+            salt: tempUser.salt
         })
     };
+}
+
+const tryCreateTempUser = async (email: string) => {
+    const newUser = await createTempUser(email);
+    if (newUser) {
+        return newUser;
+    }
+    return await getTempUser(email);
 }
